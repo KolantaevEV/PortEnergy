@@ -38,8 +38,8 @@ BUILD_DIR = build
 C_SOURCES =  \
 src/ \
 cmsis/src/ \
-freertos/src \
-hal_ll/src \
+freertos/src/ \
+hal_ll/src/ \
 lib/ADC/ \
 lib/CAN/ \
 lib/DMA/ \
@@ -101,7 +101,6 @@ C_DEFS =  \
 -DSTM32F10x \
 -DSTM32F10X_MD \
 -DM3 \
--DGCC_ARMCM3 \
 -DSTM32F1
 
 # AS includes
