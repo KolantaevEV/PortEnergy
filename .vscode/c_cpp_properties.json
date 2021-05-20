@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "arm_c_cpp_properties",
+            "compilerPath": "C:/VS_Tools/gcc_arm/bin/arm-none-eabi-gcc.exe",
+            "includePath": [
+                "C:/VS_Tools/gcc_arm/**",
+
+                "${workspaceRoot}/**"
+            ],
+            "defines": [
+                "USE_HAL_LL_DRIVER",
+                "STM32F103xB",
+                "STM32F10x",
+                "STM32F10X_MD",
+				"M3",
+                "STM32F1"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+			"intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}
