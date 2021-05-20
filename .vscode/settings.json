@@ -1,8 +1,0 @@
-{
-	"cortex-debug.armToolchainPath": "C:/VS_Tools/gcc_arm/bin/",
-	"cortex-debug.enableTelemetry": false,
-	"cortex-debug.openocdPath": "C:/VS_Tools/Openocd/bin/openocd.exe",
-	"files.associations": {
-		"cstdint": "c"
-	}
-}
