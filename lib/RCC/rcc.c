@@ -16,6 +16,7 @@ void RCC_init(void)
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1; //AHB divider
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2; //APB1 divider
     RCC->CFGR |= RCC_CFGR_PPRE2_DIV1; //APB2 divider
+    RCC->CFGR |= RCC_CFGR_ADCPRE_DIV6; //ADC Div 6 (12 MHz)
 
     RCC->CFGR |= RCC_CFGR_SW_PLL; // Switch to PLL
     while (!(RCC->CFGR & RCC_CFGR_SWS_PLL)); //is switched to PLL?

@@ -1,6 +1,6 @@
 #include "dma.h"
 
-void DMA1_Ch4_init(volatile void *addr_perif, volatile void *addr_buff)
+void DMA1_Ch6_init(volatile void *addr_perif, volatile void *addr_buff) //Urx
 {
     RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
@@ -21,7 +21,7 @@ void DMA1_Ch4_init(volatile void *addr_perif, volatile void *addr_buff)
     DMA1_Channel4->CCR &= ~DMA_CCR_EN; //Enable DMA CH
 }
 
-void DMA1_Ch5_init(volatile void *addr_perif, volatile void *addr_buff)
+void DMA1_Ch7_init(volatile void *addr_perif, volatile void *addr_buff) //Utx
 {
     RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
