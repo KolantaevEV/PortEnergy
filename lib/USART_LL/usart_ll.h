@@ -11,6 +11,11 @@
 #include "typedefs.h"
 
 void uart2Init(void);
-strData str2Char(float temp, float volt);
+strData_t str2Char(float temp, float volt);
+int *getUartRxBuffAdr(void);
+orderedBuff_t getDataFromUart(void);
+uint8_t getNewDataFlag(void);
+void clearNewDataFlag(void);
+void resetBuffersServiceData(void);
 
 #endif  /*LIB_USART_LL*/

@@ -1,5 +1,52 @@
 #include "usart_ll.h"
 
+typedef struct
+{
+    char buff[DATA_BUF_SIZE];
+    int beginIndx;
+    int dmaRemainBytes;
+} circularBuff_t;
+
+static circularBuff_t uartRxCircularBuff = {{0}, 0, DATA_BUF_SIZE};
+static orderedBuff_t buffForCan = {{0}, 0};
+
+uint8_t newDataFlag = 0;
+
+static void setNewDataFlag(void);
+
+int *getUartRxBuffAdr(void)
+{
+    return uartRxCircularBuff.buff;
+}
+
+orderedBuff_t getDataFromUart(void)
+{
+    return buffForCan;
+}
+
+void setNewDataFlag(void)
+{
+    newDataFlag = 1;
+}
+
+uint8_t getNewDataFlag(void)
+{
+    return newDataFlag;
+}
+
+void clearNewDataFlag(void)
+{
+    newDataFlag = 0;
+}
+
+void resetBuffersServiceData(void)
+{
+    clearNewDataFlag();
+    uartRxCircularBuff.beginIndx = 0;
+    uartRxCircularBuff.dmaRemainBytes = DATA_BUF_SIZE;
+    buffForCan.amountOfData = 0;
+
+}
 
 void uart2Init(void)
 {
@@ -29,17 +76,17 @@ void uart2Init(void)
     LL_USART_Enable(USART2);
 }
 
-strData str2Char(float temp, float volt)
+strData_t str2Char(float temp, float volt)
 {
-    static strData strData2Tx = {"Temperatura: xx C | Voltage: y.yy V\n", 36};
+    static strData_t strData2Tx = {{"Temperatura: xx C | Voltage: y.yy V\n"}, 36};
 
     strData2Tx.chars[13] = ((int)temp / 10) + '0';
     strData2Tx.chars[14] = ((int)temp % 10) + '0';
 
     strData2Tx.chars[29] = (int)volt + '0';
     int fractional = (int)(volt * 100) - ((int)volt * 100);
-    strData2Tx.chars[29] = (fractional / 10) + '0';
-    strData2Tx.chars[29] = (fractional % 10) + '0';
+    strData2Tx.chars[31] = (fractional / 10) + '0';
+    strData2Tx.chars[32] = (fractional % 10) + '0';
 
     return strData2Tx;
 }
@@ -47,4 +94,28 @@ strData str2Char(float temp, float volt)
 void USART2_IRQHandler(void)
 {
     LL_USART_ClearFlag_IDLE(USART2);
+
+    int numOfData2BeTransfered = DMA1_Channel6->CNDTR;
+    int numOfNewBytes = 0;
+
+    if (numOfData2BeTransfered < uartRxCircularBuff.dmaRemainBytes)
+    {
+        numOfNewBytes = DATA_BUF_SIZE - numOfData2BeTransfered;
+    } else {
+        numOfNewBytes = (DATA_BUF_SIZE - uartRxCircularBuff.beginIndx) +  (DATA_BUF_SIZE - numOfData2BeTransfered);
+    }
+    uartRxCircularBuff.dmaRemainBytes = numOfData2BeTransfered;
+
+    int uartBuffIndx = 0;
+    for (int indx = 0; indx < numOfNewBytes; indx++)
+    {
+        uartBuffIndx = indx + uartRxCircularBuff.beginIndx;
+        if (uartBuffIndx > (DATA_BUF_SIZE - 1)) uartBuffIndx -= DATA_BUF_SIZE;
+        buffForCan.buff[indx] = uartRxCircularBuff.buff[uartBuffIndx];
+    }
+    uartRxCircularBuff.beginIndx = ++uartBuffIndx;
+
+    buffForCan.amountOfData = numOfNewBytes;
+
+    setNewDataFlag();
 }
