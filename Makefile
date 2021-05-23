@@ -43,7 +43,6 @@ hal_ll/src/ \
 lib/ADC/ \
 lib/CAN/ \
 lib/DMA/ \
-lib/FIFO/ \
 lib/GPIO/ \
 lib/RCC/ \
 lib/TIM/ \
@@ -115,7 +114,6 @@ C_INCLUDES =  \
 -Ilib/ADC/ \
 -Ilib/CAN/ \
 -Ilib/DMA/ \
--Ilib/FIFO/ \
 -Ilib/GPIO/ \
 -Ilib/RCC/ \
 -Ilib/TIM/ \
