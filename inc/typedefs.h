@@ -3,6 +3,7 @@
 
 <<<<<<< HEAD
 #define TEMP_25 1.43F
+
 #define AVG_SLOPE 4.3F
 #define V_COEFF 1.0F
 
@@ -12,7 +13,9 @@ typedef struct
     volatile uint8_t data[256];
     volatile int16_t cnt;
 } buff;
+
 =======
+
 #define DATA_BUF_SIZE 256
 
 typedef struct 
@@ -30,7 +33,7 @@ typedef struct
     uint32_t rtr;
     uint32_t dlc;
     buff msg;
-} can_message;
+} message;
 
 typedef struct 
 {
