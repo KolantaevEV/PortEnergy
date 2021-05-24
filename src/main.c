@@ -1,18 +1,21 @@
 #include "main.h"
 
 volatile message msg_to_uart = {0};
-volatile message can_msg_tx = {0};
 
 int main(void)
 {
     RCC_init();
     GPIO_init();
-    DMA1_Ch6_init(&USART2->DR, &can_msg_tx.msg.data);
+    
     DMA1_Ch7_init(&USART2->DR, &msg_to_uart.msg.data);
     ADC1_init();
     CAN1_init();
     uart2Init();
     IRQ_init();
+
+/*============Add_tasks=============*/
+    xTaskCreate(Task_ADC_to_UART, ( signed char * ) "ADC_to_UART", configMINIMAL_STACK_SIZE, NULL, 2,
+                        ( xTaskHandle * ) NULL);
 
     while (1)
     {
@@ -22,7 +25,7 @@ int main(void)
     return 0;
 }
 
-void Task_ADC_to_UART(void)
+void Task_ADC_to_UART(void *pvParameters)
 {
     volatile adc_data adc1 = {0};
     DMA1_Ch1_init(&ADC1->DR, &adc1.voltage_ch14);
@@ -55,8 +58,11 @@ void Task_ADC_to_UART(void)
     }
 }
 
-void Task_UART_to_CAN(void)
+void Task_UART_to_CAN(void *pvParameters)
 {
+    volatile message can_msg_tx = {0};
+    DMA1_Ch6_init(&USART2->DR, &can_msg_tx.msg.data);
+
     while(1)
     {
         if (can_msg_tx.msg.cnt != 0)
@@ -67,11 +73,12 @@ void Task_UART_to_CAN(void)
         {
             DMA1_Channel6->CCR |= DMA_CCR_EN;
             //wait semaphore 1
+            can_msg_tx.msg.cnt = DATA_BUF_SIZE - DMA1_Channel6->CNDTR;
         }
     }
 }
 
-void Task_CAN_to_UART(void)
+void Task_CAN_to_UART(void *pvParameters)
 {
     while(1)
     {
@@ -85,22 +92,7 @@ void Task_CAN_to_UART(void)
     }
 }
 
-void Task_ADC_convertion(void)
+void ADC_convertion(void)
 {
-    TickType_t curr_time;
-    curr_time = xTaskGetTickCount();
-
-    const TickType_t wait_time = 50;    //in freertos Ticks(50ms in this proj)
-    BaseType_t delay_err = 0;
-
-    while(1)
-    {
-        delay_err = xTaskDelayUntil(&curr_time, wait_time);
-
-        if (!delay_err)
-        {
-            ADC1->CR2 |= ADC_CR2_SWSTART;   //Start ADC1
-        }
-        else while(1);  //Maximization of error to debug
-    }
+    ADC1->CR2 |= ADC_CR2_SWSTART;   //Start ADC1
 }

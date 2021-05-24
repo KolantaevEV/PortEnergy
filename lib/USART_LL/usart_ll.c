@@ -1,7 +1,5 @@
 #include "usart_ll.h"
 
-extern volatile message can_msg_tx;
-
 void uart2Init(void)
 {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
@@ -53,6 +51,5 @@ void USART2_IRQHandler(void)
 {
     LL_USART_ClearFlag_IDLE(USART2);
     DMA1_Channel6->CCR &= ~DMA_CCR_EN;
-    can_msg_tx.msg.cnt = DATA_BUF_SIZE - DMA1_Channel6->CNDTR;
     //set semaphor1
 }

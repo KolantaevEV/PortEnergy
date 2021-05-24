@@ -23,9 +23,9 @@
 #include "typedefs.h"
 #include "interrupts.h"
 
-void Task_ADC_to_UART(void);
-void Task_UART_to_CAN(void);
-void Task_CAN_to_UART(void);
-void Task_ADC_convertion(void);
+void Task_ADC_to_UART(void *pvParameters);
+void Task_UART_to_CAN(void *pvParameters);
+void Task_CAN_to_UART(void *pvParameters);
+void Task_ADC_convertion(void *pvParameters);
 
 #endif  /*INC_MAIN*/
