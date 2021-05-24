@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-#include "usart_ll.h"
-=======
 #include "usart_ll.h"
 
 typedef struct
@@ -122,4 +119,3 @@ void USART2_IRQHandler(void)
 
     setNewDataFlag();
 }
->>>>>>> Roma_dev

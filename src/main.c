@@ -13,9 +13,23 @@ int main(void)
     uart2Init();
     IRQ_init();
 
-/*============Add_tasks=============*/
-    xTaskCreate(Task_ADC_to_UART, ( signed char * ) "ADC_to_UART", configMINIMAL_STACK_SIZE, NULL, 2,
-                        ( xTaskHandle * ) NULL);
+/*============Add_Tasks=============*/
+    xTaskCreate(Task_ADC_to_UART, 
+                "ADC_to_UART", 
+                configMINIMAL_STACK_SIZE, 
+                NULL, 
+                tskIDLE_PRIORITY + 2,
+                (xTaskHandle *) NULL);
+    xTaskCreate(Task_UART_to_CAN, 
+                "UART_to_CAN", 
+                configMINIMAL_STACK_SIZE, 
+                NULL, 
+                tskIDLE_PRIORITY + 2,
+                (xTaskHandle *) NULL);
+/*============Add_Timers=============*/    
+
+
+
 
     while (1)
     {
@@ -29,32 +43,39 @@ void Task_ADC_to_UART(void *pvParameters)
 {
     volatile adc_data adc1 = {0};
     DMA1_Ch1_init(&ADC1->DR, &adc1.voltage_ch14);
-    DMA1_Channel1->CCR |= DMA_CCR_EN;  //Enable DMA
+
+    xTimerHandle th_ADC_convert;
+    th_ADC_convert = xTimerCreate("ADC_convert",
+                                pdMS_TO_TICKS(50),
+                                pdTRUE,
+                                NULL,
+                                tc_ADC_convert);
+    if (th_ADC_convert == NULL) while(1);
+    if (xTimerStart(th_ADC_convert, 0) != pdPASS) while(1);
+
+    BaseType_t delay_err = 0;
 
     TickType_t curr_time;
     curr_time = xTaskGetTickCount();
 
-    const TickType_t wait_time = 5000;    //in freertos Ticks(5sec in this proj)
-    BaseType_t delay_err = 0;
-
     while(1)
     {
-        delay_err = xTaskDelayUntil(&curr_time, wait_time);
-        while (DMA1_Channel7->CCR & DMA_CCR_EN);
-        DMA1_Channel1->CCR &= ~DMA_CCR_EN;  //Disable DMA
-        while (DMA1_Channel1->CCR & DMA_CCR_EN); //Check disable
-
+        delay_err = xTaskDelayUntil(&curr_time, pdMS_TO_TICKS(5000));
         if (!delay_err)
         {
+            //GET MUTEX!!! DMA7
+            if (xTimerStop(th_ADC_convert, 0) != pdPASS) while(1);
             float temp_C = (TEMP_25 - (float)adc1.temp_ch16) / AVG_SLOPE + 25.0F;
             float voltage = ((float)adc1.voltage_ch14 * 3.3F)/4095.0F;
+            if (xTimerStart(th_ADC_convert, 0) != pdPASS) while(1);
             msg_to_uart.msg = str2Char(temp_C, voltage);
             DMA1_Channel7->CNDTR = msg_to_uart.msg.cnt;
             DMA1_Channel7->CCR |= DMA_CCR_EN;
+            //wait semaphore from dma interrupt
+            //!!!Release MUTEX DMA7???
         }
-        else while(1);  //Maximization of error to debug
+        else while(1);  //Error - maximization of error to debug
 
-        DMA1_Channel1->CCR |= DMA_CCR_EN; //Enable DMA
     }
 }
 
@@ -82,17 +103,16 @@ void Task_CAN_to_UART(void *pvParameters)
 {
     while(1)
     {
-        if (!(DMA1_Channel7->CCR & DMA_CCR_EN))
-        {            
-            CAN_rx_data(CAN1, &msg_to_uart);
-            DMA1_Channel7->CNDTR = msg_to_uart.msg.cnt;
-            DMA1_Channel7->CCR |= DMA_CCR_EN;
-        }
-        else ;//wait semaphore
-    }
+        //!!!GET MUTEX DMA7
+        CAN_rx_data(CAN1, &msg_to_uart);
+        DMA1_Channel7->CNDTR = msg_to_uart.msg.cnt;
+        DMA1_Channel7->CCR |= DMA_CCR_EN;
+        //wait semaphore from dma interrupt
+        //!!!Release MUTEX DMA7???
+        //wait semaphore
 }
 
-void ADC_convertion(void)
+void tc_ADC_convert(xTimerHandle pxTimer)
 {
     ADC1->CR2 |= ADC_CR2_SWSTART;   //Start ADC1
 }

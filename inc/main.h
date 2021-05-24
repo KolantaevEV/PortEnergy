@@ -11,6 +11,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "timers.h"
+#include "semphr.h"
 /*========User_Libs==========*/
 #include "adc.h"
 #include "can.h"
@@ -26,6 +28,6 @@
 void Task_ADC_to_UART(void *pvParameters);
 void Task_UART_to_CAN(void *pvParameters);
 void Task_CAN_to_UART(void *pvParameters);
-void Task_ADC_convertion(void *pvParameters);
+void tc_ADC_convert(xTimerHandle pxTimer);
 
 #endif  /*INC_MAIN*/
