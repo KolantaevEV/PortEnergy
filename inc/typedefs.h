@@ -24,8 +24,8 @@ typedef struct
 
 typedef struct 
 {
-    volatile uint8_t data[DATA_BUF_SIZE];
-    volatile int16_t cnt;
+    uint8_t data[DATA_BUF_SIZE];
+    int16_t cnt;
 } buff;
 
 typedef struct 

@@ -5,30 +5,32 @@ volatile xSemaphoreHandle DMA_Ch7_mutex;
 volatile xSemaphoreHandle CAN1_semphr;
 volatile xSemaphoreHandle DMA_Ch7_semphr;
 volatile xSemaphoreHandle UART1_semphr;
+volatile message can_msg_tx = {0};
 
 int main(void)
 {
     RCC_init();
-    GPIO_init();    
-    DMA1_Ch7_init(&USART2->DR, &msg_to_uart.msg.data);
-    ADC1_init();
-    CAN1_init();
+    GPIO_init();
+    DMA1_Ch6_init(&USART2->DR, can_msg_tx.msg.data);
     uart2Init();
+//    DMA1_Ch7_init(&USART2->DR, msg_to_uart.msg.data);
+//    ADC1_init();
+//    CAN1_init();
     IRQ_init();
+/*
+//============Add_Timers============
 
-/*============Add_Timers============*/
-
-/*============Add_Semaphores=============*/
+//============Add_Semaphores========
     DMA_Ch7_semphr = xSemaphoreCreateBinary();
         if (DMA_Ch7_semphr == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
     CAN1_semphr = xSemaphoreCreateBinary();
         if (CAN1_semphr == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
     UART1_semphr = xSemaphoreCreateBinary();
         if (UART1_semphr == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
-/*============Add_Mutex=============*/
+//============Add_Mutex=============
     DMA_Ch7_mutex = xSemaphoreCreateMutex();
     if (DMA_Ch7_mutex == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
-/*============Add_Tasks=============*/
+//============Add_Tasks=============
     xTaskCreate(Task_ADC_to_UART, 
                 "ADC_to_UART", 
                 configMINIMAL_STACK_SIZE, 
@@ -49,7 +51,7 @@ int main(void)
                 (xTaskHandle *) NULL);
 
     vTaskStartScheduler();
-
+*/
     while (1)
     {
 

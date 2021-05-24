@@ -54,12 +54,16 @@ void uart2Init(void)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
 
     LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    LL_GPIO_StructInit(&GPIO_InitStruct);
     GPIO_InitStruct.Pin = LL_GPIO_PIN_2;
     GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-    GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Speed = LL_GPIO_MODE_OUTPUT_50MHz;
     GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
     LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    LL_GPIO_StructInit(&GPIO_InitStruct);
     GPIO_InitStruct.Pin = LL_GPIO_PIN_3;
     GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
@@ -77,7 +81,7 @@ void uart2Init(void)
     LL_USART_ConfigAsyncMode(USART2);
     LL_USART_EnableIT_IDLE(USART2);
     LL_USART_EnableDMAReq_RX(USART2);
-    LL_USART_EnableDMAReq_TX(USART2);
+//    LL_USART_EnableDMAReq_TX(USART2);
     LL_USART_Enable(USART2);
 }
 
@@ -98,9 +102,15 @@ buff str2Char(float temp, float volt)
 
 void USART2_IRQHandler(void)
 {
+    uint8_t buff = 'X';
+    buff = USART2->DR;
     LL_USART_ClearFlag_IDLE(USART2);
-    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
-    xSemaphoreGive(UART1_semphr);
+    if (GPIOC->ODR & GPIO_ODR_ODR13)
+        GPIOC->BSRR = GPIO_BSRR_BR13;
+    else GPIOC->BSRR = GPIO_BSRR_BS13;
+    USART2->DR = buff;
+//    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
+//    xSemaphoreGive(UART1_semphr);
 /*
     int numOfData2BeTransfered = DMA1_Channel6->CNDTR;
     int numOfNewBytes = 0;
