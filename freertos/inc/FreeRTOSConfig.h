@@ -98,5 +98,11 @@ NVIC value of 255. */
 #define configCOM1_RX_BUFFER_LENGTH		128
 #define configCOM1_TX_BUFFER_LENGTH		128
 
+/* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
+standard names. */
+#define vPortSVCHandler SVC_Handler
+#define xPortPendSVHandler PendSV_Handler
+#define xPortSysTickHandler SysTick_Handler
+
 #endif /* FREERTOS_CONFIG_H */
 

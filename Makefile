@@ -43,7 +43,6 @@ hal_ll/src/ \
 lib/ADC/ \
 lib/CAN/ \
 lib/DMA/ \
-lib/FIFO/ \
 lib/GPIO/ \
 lib/RCC/ \
 lib/TIM/ \
@@ -96,7 +95,7 @@ AS_DEFS =
 
 # C defines deleted -DUSE_HAL_DRIVER
 C_DEFS =  \
--DUSE_HAL_LL_DRIVER \
+-DUSE_FULL_LL_DRIVER \
 -DSTM32F103xB \
 -DSTM32F10x \
 -DSTM32F10X_MD \
@@ -115,7 +114,6 @@ C_INCLUDES =  \
 -Ilib/ADC/ \
 -Ilib/CAN/ \
 -Ilib/DMA/ \
--Ilib/FIFO/ \
 -Ilib/GPIO/ \
 -Ilib/RCC/ \
 -Ilib/TIM/ \
