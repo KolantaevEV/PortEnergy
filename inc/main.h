@@ -3,6 +3,8 @@
 
 /*=========C_std_lib==========*/
 #include <stdint.h>
+#include <string.h>
+#include <stdio.h>
 /*=========CMSIS===========*/
 #include "stm32f1xx.h"
 /*=========HAL_LL===========*/

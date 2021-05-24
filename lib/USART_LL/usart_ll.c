@@ -81,7 +81,7 @@ void uart2Init(void)
     LL_USART_ConfigAsyncMode(USART2);
     LL_USART_EnableIT_IDLE(USART2);
     LL_USART_EnableDMAReq_RX(USART2);
-//    LL_USART_EnableDMAReq_TX(USART2);
+    LL_USART_EnableDMAReq_TX(USART2);
     LL_USART_Enable(USART2);
 }
 
@@ -102,13 +102,16 @@ buff str2Char(float temp, float volt)
 
 void USART2_IRQHandler(void)
 {
-    uint8_t buff = 'X';
-    buff = USART2->DR;
     LL_USART_ClearFlag_IDLE(USART2);
+    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel7->CCR &= ~DMA_CCR_EN;
     if (GPIOC->ODR & GPIO_ODR_ODR13)
         GPIOC->BSRR = GPIO_BSRR_BR13;
     else GPIOC->BSRR = GPIO_BSRR_BS13;
-    USART2->DR = buff;
+    DMA1_Channel7->CNDTR = DATA_BUF_SIZE - DMA1_Channel6->CNDTR;
+    DMA1_Channel6->CNDTR = DATA_BUF_SIZE;
+    DMA1_Channel7->CCR |= DMA_CCR_EN;
+    DMA1_Channel6->CCR |= DMA_CCR_EN;
 //    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
 //    xSemaphoreGive(UART1_semphr);
 /*

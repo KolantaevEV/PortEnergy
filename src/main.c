@@ -13,7 +13,7 @@ int main(void)
     GPIO_init();
     DMA1_Ch6_init(&USART2->DR, can_msg_tx.msg.data);
     uart2Init();
-//    DMA1_Ch7_init(&USART2->DR, msg_to_uart.msg.data);
+    DMA1_Ch7_init(&USART2->DR, can_msg_tx.msg.data);
 //    ADC1_init();
 //    CAN1_init();
     IRQ_init();
@@ -54,7 +54,7 @@ int main(void)
 */
     while (1)
     {
-
+        
     }
 
     return 0;
