@@ -1,6 +1,7 @@
 #include "usart_ll.h"
 
 extern volatile xSemaphoreHandle UART1_semphr;
+extern volatile xSemaphoreHandle CAN1_semphr;
 typedef struct
 {
     char buff[DATA_BUF_SIZE];

@@ -40,14 +40,14 @@ int main(void)
                 configMINIMAL_STACK_SIZE, 
                 NULL, 
                 3,
-                (xTaskHandle *) NULL);
+                (xTaskHandle *) NULL);*/
     xTaskCreate(Task_CAN_to_UART, 
                 "CAN_to_UART", 
                 configMINIMAL_STACK_SIZE, 
                 NULL, 
                 4,
                 (xTaskHandle *) NULL);
-*/
+
     vTaskStartScheduler();
 
     while (1)
@@ -121,15 +121,17 @@ void Task_CAN_to_UART(void *pvParameters)
 {
     while(1)
     {
-        if (xSemaphoreTake(DMA_Ch7_mutex, portMAX_DELAY) == pdTRUE)
+        if (xSemaphoreTake(CAN1_semphr, portMAX_DELAY) == pdTRUE)
         {
             CAN_rx_data(CAN1, &msg_to_uart);
-            DMA1_Channel7->CNDTR = msg_to_uart.msg.cnt;
-            DMA1_Channel7->CCR |= DMA_CCR_EN;
-            xSemaphoreTake(DMA_Ch7_semphr, portMAX_DELAY);
-            xSemaphoreGive(DMA_Ch7_mutex);
+            if (xSemaphoreTake(DMA_Ch7_mutex, portMAX_DELAY) == pdTRUE)
+            {                
+                DMA1_Channel7->CNDTR = msg_to_uart.msg.cnt;
+                DMA1_Channel7->CCR |= DMA_CCR_EN;
+                xSemaphoreTake(DMA_Ch7_semphr, portMAX_DELAY);
+                xSemaphoreGive(DMA_Ch7_mutex);
+            }
         }
-        xSemaphoreTake(CAN1_semphr, portMAX_DELAY);
     }
 }
 

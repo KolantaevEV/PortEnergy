@@ -95,14 +95,15 @@ void CAN_tx_data(CAN_TypeDef *CANx, volatile message *can_msg)
 }
 
 void CAN_rx_data(CAN_TypeDef *CANx, volatile message *can_msg)
-{
+{/*
     can_msg->stid = ((CAN1->sFIFOMailBox[0].RIR & CAN_RI0R_STID_Msk) >> CAN_RI0R_STID_Pos);
     can_msg->exid = ((CAN1->sFIFOMailBox[0].RIR & CAN_RI0R_EXID_Msk) >> CAN_RI0R_EXID_Pos);
     can_msg->ide = ((CAN1->sFIFOMailBox[0].RIR & CAN_RI0R_IDE_Msk) >> CAN_RI0R_IDE_Pos);
     can_msg->rtr = ((CAN1->sFIFOMailBox[0].RIR & CAN_RI0R_RTR_Msk) >> CAN_RI0R_RTR_Pos);
-    can_msg->dlc = ((CAN1->sFIFOMailBox[0].RDTR & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos);
+    can_msg->dlc = ((CAN1->sFIFOMailBox[0].RDTR & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos);*/
+    can_msg->dlc = 8;
     can_msg->msg.cnt = can_msg->dlc;
-
+/*
     for (int i = 0; i < can_msg->dlc; i++)
     {
         if (i < 4)
@@ -110,8 +111,10 @@ void CAN_rx_data(CAN_TypeDef *CANx, volatile message *can_msg)
         else
             can_msg->msg.data[i] = ((CAN1->sFIFOMailBox[0].RDLR >> (8 * (i - 4))) & 0xFFUL);
     }
-
+*/
+    for (int i = 0; i < can_msg->dlc; i++)
+        can_msg->msg.data[i] = ('A' + i);
+    
     CAN1->RF0R |= CAN_RF0R_RFOM0; //Clear current fifo_0
     CAN1->IER |= CAN_IER_FMPIE0;
 }
-
