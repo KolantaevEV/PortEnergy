@@ -10,12 +10,6 @@
 
 typedef struct 
 {
-    char chars[36];
-    int size;
-} strData;
-
-typedef struct 
-{
     volatile uint8_t data[DATA_BUF_SIZE];
     volatile int16_t cnt;
 } buff;
