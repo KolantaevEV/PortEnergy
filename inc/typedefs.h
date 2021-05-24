@@ -2,9 +2,9 @@
 #define INC_TYPEDEFS
 
 #define DATA_BUF_SIZE 256
-#define TEMP_25 1.43F
-#define AVG_SLOPE 4.3F
-#define V_COEFF 1.0F
+#define TEMP_25 1.52F
+#define AVG_SLOPE 0.0043F
+#define V_REF 3.0F
 
 #include <stdint.h>
 

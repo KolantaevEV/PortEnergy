@@ -87,7 +87,7 @@ void uart2Init(void)
 
 buff str2Char(float temp, float volt)
 {
-    static buff strData2Tx = {{"Temperatura: xx C | Voltage: y.yy V\n"}, 36};
+    static buff strData2Tx = {{"Temperatura: xx C | Voltage: y.yy V\x0D\x0A"}, 37};
 
     strData2Tx.data[13] = ((int)temp / 10) + '0';
     strData2Tx.data[14] = ((int)temp % 10) + '0';
@@ -103,17 +103,12 @@ buff str2Char(float temp, float volt)
 void USART2_IRQHandler(void)
 {
     LL_USART_ClearFlag_IDLE(USART2);
-    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
-    DMA1_Channel7->CCR &= ~DMA_CCR_EN;
     if (GPIOC->ODR & GPIO_ODR_ODR13)
         GPIOC->BSRR = GPIO_BSRR_BR13;
     else GPIOC->BSRR = GPIO_BSRR_BS13;
-    DMA1_Channel7->CNDTR = DATA_BUF_SIZE - DMA1_Channel6->CNDTR;
-    DMA1_Channel6->CNDTR = DATA_BUF_SIZE;
-    DMA1_Channel7->CCR |= DMA_CCR_EN;
-    DMA1_Channel6->CCR |= DMA_CCR_EN;
-//    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
-//    xSemaphoreGive(UART1_semphr);
+
+    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
+    xSemaphoreGive(UART1_semphr);
 /*
     int numOfData2BeTransfered = DMA1_Channel6->CNDTR;
     int numOfNewBytes = 0;
