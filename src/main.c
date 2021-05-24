@@ -20,14 +20,14 @@ int main(void)
 
 /*============Add_Semaphores=============*/
     DMA_Ch7_semphr = xSemaphoreCreateBinary();
-        if (DMA_Ch7_semphr == NULL) while(1);
+        if (DMA_Ch7_semphr == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
     CAN1_semphr = xSemaphoreCreateBinary();
-        if (CAN1_semphr == NULL) while(1);
+        if (CAN1_semphr == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
     UART1_semphr = xSemaphoreCreateBinary();
-        if (UART1_semphr == NULL) while(1);
+        if (UART1_semphr == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
 /*============Add_Mutex=============*/
     DMA_Ch7_mutex = xSemaphoreCreateMutex();
-    if (DMA_Ch7_mutex == NULL) while(1);
+    if (DMA_Ch7_mutex == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
 /*============Add_Tasks=============*/
     xTaskCreate(Task_ADC_to_UART, 
                 "ADC_to_UART", 
@@ -70,8 +70,8 @@ void Task_ADC_to_UART(void *pvParameters)
                                 pdTRUE,
                                 NULL,
                                 tc_ADC_convert);
-    if (th_ADC_convert == NULL) while(1);
-    if (xTimerStart(th_ADC_convert, 0) != pdPASS) while(1);
+    if (th_ADC_convert == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
+    if (xTimerStart(th_ADC_convert, 0) != pdPASS) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
 
     BaseType_t delay_err = 0;
 
@@ -85,10 +85,10 @@ void Task_ADC_to_UART(void *pvParameters)
         {
             if (xSemaphoreTake(DMA_Ch7_mutex, portMAX_DELAY) == pdTRUE)
             {
-                if (xTimerStop(th_ADC_convert, 0) != pdPASS) while(1);
+                if (xTimerStop(th_ADC_convert, 0) != pdPASS) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
                 float temp_C = (TEMP_25 - (float)adc1.temp_ch16) / AVG_SLOPE + 25.0F;
                 float voltage = ((float)adc1.voltage_ch14 * 3.3F)/4095.0F;
-                if (xTimerStart(th_ADC_convert, 0) != pdPASS) while(1);
+                if (xTimerStart(th_ADC_convert, 0) != pdPASS) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
                 msg_to_uart.msg = str2Char(temp_C, voltage);
                 DMA1_Channel7->CNDTR = msg_to_uart.msg.cnt;
                 DMA1_Channel7->CCR |= DMA_CCR_EN;
@@ -96,7 +96,7 @@ void Task_ADC_to_UART(void *pvParameters)
                 xSemaphoreGive(DMA_Ch7_mutex);
             }
         }
-        else while(1);  //Error - maximization of error to debug
+        else {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}  //Error - maximization of error to debug
 
     }
 }
