@@ -11,7 +11,7 @@
 #include "typedefs.h"
 
 void CAN1_init(void);
-void CAN_tx_data(CAN_TypeDef *CANx, can_message *can_msg);
-void CAN_rx_data(CAN_TypeDef *CANx, can_message *can_msg);
+void CAN_tx_data(CAN_TypeDef *CANx, volatile message *can_msg);
+void CAN_rx_data(CAN_TypeDef *CANx, volatile message *can_msg);
 
 #endif /*LIB_CAN*/

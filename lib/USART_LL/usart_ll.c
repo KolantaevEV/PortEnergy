@@ -1,15 +1,20 @@
 #include "usart_ll.h"
 
+extern volatile message can_msg_tx;
 
 void uart2Init(void)
 {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
 
     LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = LL_GPIO_PIN_9 | LL_GPIO_PIN_10;
+    GPIO_InitStruct.Pin = LL_GPIO_PIN_2;
     GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
     GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = LL_GPIO_PIN_3;
+    GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
     LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -29,17 +34,17 @@ void uart2Init(void)
     LL_USART_Enable(USART2);
 }
 
-strData str2Char(float temp, float volt)
+buff str2Char(float temp, float volt)
 {
-    static strData strData2Tx = {"Temperatura: xx C | Voltage: y.yy V\n", 36};
+    static buff strData2Tx = {"Temperatura: xx C | Voltage: y.yy V\n", 36};
 
-    strData2Tx.chars[13] = ((int)temp / 10) + '0';
-    strData2Tx.chars[14] = ((int)temp % 10) + '0';
+    strData2Tx.data[13] = ((int)temp / 10) + '0';
+    strData2Tx.data[14] = ((int)temp % 10) + '0';
 
-    strData2Tx.chars[29] = (int)volt + '0';
+    strData2Tx.data[29] = (int)volt + '0';
     int fractional = (int)(volt * 100) - ((int)volt * 100);
-    strData2Tx.chars[29] = (fractional / 10) + '0';
-    strData2Tx.chars[29] = (fractional % 10) + '0';
+    strData2Tx.data[29] = (fractional / 10) + '0';
+    strData2Tx.data[29] = (fractional % 10) + '0';
 
     return strData2Tx;
 }
@@ -47,4 +52,7 @@ strData str2Char(float temp, float volt)
 void USART2_IRQHandler(void)
 {
     LL_USART_ClearFlag_IDLE(USART2);
+    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
+    can_msg_tx.msg.cnt = DATA_BUF_SIZE - DMA1_Channel6->CNDTR;
+    //set semaphor1
 }

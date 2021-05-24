@@ -1,17 +1,25 @@
 #ifndef INC_TYPEDEFS
 #define INC_TYPEDEFS
 
+#define DATA_BUF_SIZE 256
 #define TEMP_25 1.43F
 #define AVG_SLOPE 4.3F
 #define V_COEFF 1.0F
-#define DATA_BUF_SIZE 256
 
 #include <stdint.h>
+
 typedef struct 
 {
-    volatile uint8_t data[256];
+    char chars[36];
+    int size;
+} strData;
+
+typedef struct 
+{
+    volatile uint8_t data[DATA_BUF_SIZE];
     volatile int16_t cnt;
 } buff;
+
 typedef struct 
 {
     uint32_t stid;

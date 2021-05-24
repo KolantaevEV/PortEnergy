@@ -31,7 +31,7 @@ void ADC1_init(void)
 //    ADC1->CR2 |= ADC_CR2_SWSTART;   //Start ADC1
 }
 
-static void ADC1_Ch8_init(void)
+void ADC1_Ch8_init(void)
 {
     if (!(RCC->APB2ENR & RCC_APB2ENR_IOPBEN))
         RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
@@ -46,7 +46,7 @@ static void ADC1_Ch8_init(void)
     ADC1->SQR1 |= ADC_SQR3_SQ1_3; //Set regular channel
 }
 
-static void ADC1_Ch16_init(void)
+void ADC1_Ch16_init(void)
 {
 /*===============ADC1_Ch16_config===================*/
     ADC1->SMPR1 |= ADC_SMPR1_SMP16; //Sample time

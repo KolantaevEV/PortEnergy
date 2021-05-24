@@ -1,15 +1,18 @@
 #include "main.h"
 
 volatile message msg_to_uart = {0};
+volatile message can_msg_tx = {0};
 
 int main(void)
 {
     RCC_init();
     GPIO_init();
-    DMA1_Ch6_init(USART2->DR, /*get buff addr*/);
-    DMA1_Ch7_init(USART2->DR, &msg_to_uart.msg.data);
+    DMA1_Ch6_init(&USART2->DR, &can_msg_tx.msg.data);
+    DMA1_Ch7_init(&USART2->DR, &msg_to_uart.msg.data);
     ADC1_init();
     CAN1_init();
+    uart2Init();
+    IRQ_init();
 
     while (1)
     {
@@ -41,8 +44,8 @@ void Task_ADC_to_UART(void)
         if (!delay_err)
         {
             float temp_C = (TEMP_25 - (float)adc1.temp_ch16) / AVG_SLOPE + 25.0F;
-            float voltage = (float)adc1.voltage_ch14 * V_COEFF;
-            msg_to_uart.msg = str2byte(temp_C, voltage);
+            float voltage = ((float)adc1.voltage_ch14 * 3.3F)/4095.0F;
+            msg_to_uart.msg = str2Char(temp_C, voltage);
             DMA1_Channel7->CNDTR = msg_to_uart.msg.cnt;
             DMA1_Channel7->CCR |= DMA_CCR_EN;
         }
@@ -54,8 +57,6 @@ void Task_ADC_to_UART(void)
 
 void Task_UART_to_CAN(void)
 {
-    volatile message can_msg_tx = {0};
-
     while(1)
     {
         if (can_msg_tx.msg.cnt != 0)
@@ -64,8 +65,8 @@ void Task_UART_to_CAN(void)
         }
         else
         {
-            //wait semaphore
-            //can_tx = func_from_roma();
+            DMA1_Channel6->CCR |= DMA_CCR_EN;
+            //wait semaphore 1
         }
     }
 }

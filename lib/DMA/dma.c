@@ -120,7 +120,7 @@ void DMA1_Ch6_init(volatile void *addr_perif, volatile void *addr_buff) //U2rx
 
     DMA1_Channel4->CPAR = (uint32_t)addr_perif; //Start addr of perif(or memory)
     DMA1_Channel4->CMAR = (uint32_t)addr_buff; //Start addr of memory(or perif)
-    DMA1_Channel4->CNDTR = 256; //Count of words to transfer
+    DMA1_Channel4->CNDTR = DATA_BUF_SIZE; //Count of words to transfer
     DMA1_Channel4->CCR &= ~DMA_CCR_MEM2MEM; //Mem to Mem mode
     DMA1_Channel4->CCR |= DMA_CCR_PL_0; //Set priority
     DMA1_Channel4->CCR &= ~DMA_CCR_MSIZE; //Set mem word size
