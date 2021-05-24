@@ -151,8 +151,8 @@ void DMA1_Ch7_init(volatile void *addr_perif, volatile void *addr_buff) //U2tx
     DMA1_Channel5->CCR &= ~DMA_CCR_PINC; //PerifAddr++
     DMA1_Channel5->CCR &= ~DMA_CCR_CIRC; //Auto reload CNDTR
     DMA1_Channel5->CCR |= DMA_CCR_DIR; //Direction
-    //DMA1_Channel5->CCR &= ~DMA_CCR_TEIE; //Interrupt transfer error
+    DMA1_Channel5->CCR |= DMA_CCR_TEIE; //Interrupt transfer error
     //DMA1_Channel5->CCR |= DMA_CCR_HTIE; //Interrupt half transfer
-    //DMA1_Channel5->CCR |= DMA_CCR_TCIE; //Interrupt transfer complete
+    DMA1_Channel5->CCR |= DMA_CCR_TCIE; //Interrupt transfer complete
     DMA1_Channel5->CCR &= ~DMA_CCR_EN; //Enable DMA CH
 }

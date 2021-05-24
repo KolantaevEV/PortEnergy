@@ -1,5 +1,6 @@
 #include "usart_ll.h"
 
+extern volatile xSemaphoreHandle UART1_semphr;
 typedef struct
 {
     char buff[DATA_BUF_SIZE];
@@ -8,27 +9,27 @@ typedef struct
 } circularBuff_t;
 
 static circularBuff_t uartRxCircularBuff = {{0}, 0, DATA_BUF_SIZE};
-static orderedBuff_t buffForCan = {{0}, 0};
+static buff buffForCan = {{0}, 0};
 
 uint8_t newDataFlag = 0;
 
-static void setNewDataFlag(void);
+//static void setNewDataFlag(void);
 
-int *getUartRxBuffAdr(void)
+char *getUartRxBuffAdr(void)
 {
     return uartRxCircularBuff.buff;
 }
 
-orderedBuff_t getDataFromUart(void)
+buff getDataFromUart(void)
 {
     return buffForCan;
 }
-
+/*
 void setNewDataFlag(void)
 {
     newDataFlag = 1;
 }
-
+*/
 uint8_t getNewDataFlag(void)
 {
     return newDataFlag;
@@ -44,7 +45,7 @@ void resetBuffersServiceData(void)
     clearNewDataFlag();
     uartRxCircularBuff.beginIndx = 0;
     uartRxCircularBuff.dmaRemainBytes = DATA_BUF_SIZE;
-    buffForCan.amountOfData = 0;
+    buffForCan.cnt = 0;
 
 }
 
@@ -53,10 +54,14 @@ void uart2Init(void)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
 
     LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = LL_GPIO_PIN_9 | LL_GPIO_PIN_10;
+    GPIO_InitStruct.Pin = LL_GPIO_PIN_2;
     GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
     GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+    GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = LL_GPIO_PIN_3;
+    GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
     LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -76,17 +81,17 @@ void uart2Init(void)
     LL_USART_Enable(USART2);
 }
 
-strData_t str2Char(float temp, float volt)
+buff str2Char(float temp, float volt)
 {
-    static strData_t strData2Tx = {{"Temperatura: xx C | Voltage: y.yy V\n"}, 36};
+    static buff strData2Tx = {{"Temperatura: xx C | Voltage: y.yy V\n"}, 36};
 
-    strData2Tx.chars[13] = ((int)temp / 10) + '0';
-    strData2Tx.chars[14] = ((int)temp % 10) + '0';
+    strData2Tx.data[13] = ((int)temp / 10) + '0';
+    strData2Tx.data[14] = ((int)temp % 10) + '0';
 
-    strData2Tx.chars[29] = (int)volt + '0';
+    strData2Tx.data[29] = (int)volt + '0';
     int fractional = (int)(volt * 100) - ((int)volt * 100);
-    strData2Tx.chars[31] = (fractional / 10) + '0';
-    strData2Tx.chars[32] = (fractional % 10) + '0';
+    strData2Tx.data[31] = (fractional / 10) + '0';
+    strData2Tx.data[32] = (fractional % 10) + '0';
 
     return strData2Tx;
 }
@@ -94,7 +99,9 @@ strData_t str2Char(float temp, float volt)
 void USART2_IRQHandler(void)
 {
     LL_USART_ClearFlag_IDLE(USART2);
-
+    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
+    xSemaphoreGive(UART1_semphr);
+/*
     int numOfData2BeTransfered = DMA1_Channel6->CNDTR;
     int numOfNewBytes = 0;
 
@@ -111,11 +118,12 @@ void USART2_IRQHandler(void)
     {
         uartBuffIndx = indx + uartRxCircularBuff.beginIndx;
         if (uartBuffIndx > (DATA_BUF_SIZE - 1)) uartBuffIndx -= DATA_BUF_SIZE;
-        buffForCan.buff[indx] = uartRxCircularBuff.buff[uartBuffIndx];
+        buffForCan.data[indx] = uartRxCircularBuff.buff[uartBuffIndx];
     }
     uartRxCircularBuff.beginIndx = ++uartBuffIndx;
 
-    buffForCan.amountOfData = numOfNewBytes;
-
-    setNewDataFlag();
+    buffForCan.cnt = numOfNewBytes;
+*/
+    
+    //setNewDataFlag();
 }

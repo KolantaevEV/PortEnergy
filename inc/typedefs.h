@@ -2,13 +2,11 @@
 #define INC_TYPEDEFS
 
 #define DATA_BUF_SIZE 256
-<<<<<<< HEAD
 #define TEMP_25 1.43F
 #define AVG_SLOPE 4.3F
 #define V_COEFF 1.0F
 
 #include <stdint.h>
-=======
 
 typedef struct 
 {
@@ -16,12 +14,13 @@ typedef struct
     int size;
 } strData_t;
 
+/*
 typedef struct
 {
     char buff[DATA_BUF_SIZE];
     int amountOfData;
 } orderedBuff_t;
->>>>>>> Roma_dev
+*/
 
 typedef struct 
 {

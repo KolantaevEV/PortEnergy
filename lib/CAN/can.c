@@ -112,5 +112,6 @@ void CAN_rx_data(CAN_TypeDef *CANx, volatile message *can_msg)
     }
 
     CAN1->RF0R |= CAN_RF0R_RFOM0; //Clear current fifo_0
+    CAN1->IER |= CAN_IER_FMPIE0;
 }
 

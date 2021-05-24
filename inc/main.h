@@ -24,6 +24,7 @@
 /*========Other=============*/
 #include "typedefs.h"
 #include "interrupts.h"
+#include "hook.h"
 
 void Task_ADC_to_UART(void *pvParameters);
 void Task_UART_to_CAN(void *pvParameters);
