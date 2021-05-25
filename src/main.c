@@ -125,9 +125,14 @@ void Task_CAN_to_UART(void *pvParameters)
 
     while(1)
     {
+        memmove(can_msg.msg.data, "ECHO from CAN: ", 15);
+        can_msg.msg.cnt = 15;
+
         if (xSemaphoreTake(CAN1_semphr, portMAX_DELAY) == pdTRUE)
-        {
-            CAN_rx_data(CAN1, &can_msg);
+        {            
+            CAN_rx_data(CAN1, &can_msg);            
+            memmove(&can_msg.msg.data[can_msg.msg.cnt], "\x0A\x0D", 2);
+            can_msg.msg.cnt += 2;
             xQueueSend(queue_to_DMA, &can_msg.msg, portMAX_DELAY);
         }
     }

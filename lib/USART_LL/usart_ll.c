@@ -1,42 +1,21 @@
 #include "usart_ll.h"
 
-volatile circularBuff_t uartRxCircularBuff = {{0}, 0, DATA_BUF_SIZE};
-volatile buff_t buffForCan = {{0}, 0};
+volatile static circularBuff_t uartRxCircularBuff = {{0}, 0, DATA_BUF_SIZE};
+volatile static buff_t buffForCan = {{0}, 0};
 
-uint8_t newDataFlag = 0;
+extern volatile xSemaphoreHandle UART1_semphr;
+extern volatile xQueueHandle queue_to_CAN;
 
-uint8_t *getUartRxBuffAdr(void)
+volatile uint8_t *getUartRxBuffAdr(void)
 {
     return uartRxCircularBuff.buff;
 }
 
-buff_t *getDataFromUart(void)
-{
-    return &buffForCan;
-}
-
-void setNewDataFlag(void)
-{
-    newDataFlag = 1;
-}
-
-uint8_t getNewDataFlag(void)
-{
-    return newDataFlag;
-}
-
-void clearNewDataFlag(void)
-{
-    newDataFlag = 0;
-}
-
 void resetBuffersServiceData(void)
 {
-    clearNewDataFlag();
     uartRxCircularBuff.beginIndx = 0;
     uartRxCircularBuff.dmaRemainBytes = DATA_BUF_SIZE;
     buffForCan.cnt = 0;
-
 }
 
 void uart2Init(void)
@@ -90,3 +69,32 @@ buff_t str2Char(float temp, float volt)
     return strData2Tx;
 }
 
+void USART2_IRQHandler(void)
+{
+    LL_USART_ClearFlag_IDLE(USART2);
+
+    int numOfData2BeTransfered = DMA1_Channel6->CNDTR;
+    int numOfNewBytes = 0;
+
+    if (numOfData2BeTransfered < uartRxCircularBuff.dmaRemainBytes)
+    {
+        numOfNewBytes = DATA_BUF_SIZE - (numOfData2BeTransfered + uartRxCircularBuff.beginIndx);
+    } else {
+        numOfNewBytes = (DATA_BUF_SIZE - uartRxCircularBuff.beginIndx) +  (DATA_BUF_SIZE - numOfData2BeTransfered);
+    }
+    uartRxCircularBuff.dmaRemainBytes = numOfData2BeTransfered;
+
+    int uartBuffIndx = 0;
+    for (int indx = 0; indx < numOfNewBytes; indx++)
+    {
+        uartBuffIndx = indx + uartRxCircularBuff.beginIndx;
+        if (uartBuffIndx > (DATA_BUF_SIZE - 1)) uartBuffIndx -= DATA_BUF_SIZE;
+        buffForCan.data[indx] = uartRxCircularBuff.buff[uartBuffIndx];
+    }
+    uartRxCircularBuff.beginIndx = ++uartBuffIndx;
+
+    buffForCan.cnt = numOfNewBytes;
+
+    xQueueSendFromISR(queue_to_CAN, &buffForCan, pdFALSE);
+    xSemaphoreGiveFromISR(UART1_semphr, pdFALSE);
+}

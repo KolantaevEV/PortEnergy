@@ -8,6 +8,7 @@
 #include "stm32f1xx_ll_cortex.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "queue.h"
 #include "typedefs.h"
 
 typedef struct
@@ -19,11 +20,8 @@ typedef struct
 
 void uart2Init(void);
 buff_t str2Char(float temp, float volt);
-uint8_t *getUartRxBuffAdr(void);
-buff_t *getDataFromUart(void);
-uint8_t getNewDataFlag(void);
-void clearNewDataFlag(void);
+volatile uint8_t *getUartRxBuffAdr(void);
+volatile buff_t *getDataFromUart(void);
 void resetBuffersServiceData(void);
-void setNewDataFlag(void);
 
 #endif  /*LIB_USART_LL*/
