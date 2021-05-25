@@ -132,7 +132,7 @@ void DMA1_Ch6_init(volatile void *addr_perif, volatile void *addr_buff) //U2rx
     //DMA1_Channel6->CCR |= DMA_CCR_TEIE; //Interrupt transfer error
     //DMA1_Channel6->CCR |= DMA_CCR_HTIE; //Interrupt half transfer
     //DMA1_Channel6->CCR |= DMA_CCR_TCIE; //Interrupt transfer complete
-    DMA1_Channel6->CCR |= DMA_CCR_EN; //Enable DMA CH
+    DMA1_Channel6->CCR &= ~DMA_CCR_EN; //Enable DMA CH
 }
 
 void DMA1_Ch7_init(volatile void *addr_perif, volatile void *addr_buff) //U2tx

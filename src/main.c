@@ -13,7 +13,7 @@ int main(void)
     uart2Init();
     DMA1_Ch7_init(&USART2->DR, msg_to_uart.msg.data);
     ADC1_init();
-//    CAN1_init();
+    CAN1_init();
     IRQ_init();
 
 //============Add_Timers============
@@ -35,12 +35,12 @@ int main(void)
                 NULL, 
                 2,
                 (xTaskHandle *) NULL);
-/*    xTaskCreate(Task_UART_to_CAN, 
+    xTaskCreate(Task_UART_to_CAN, 
                 "UART_to_CAN", 
                 configMINIMAL_STACK_SIZE, 
                 NULL, 
                 3,
-                (xTaskHandle *) NULL);*/
+                (xTaskHandle *) NULL);
     xTaskCreate(Task_CAN_to_UART, 
                 "CAN_to_UART", 
                 configMINIMAL_STACK_SIZE, 
@@ -102,6 +102,11 @@ void Task_UART_to_CAN(void *pvParameters)
     volatile message can_msg_tx = {0};
     DMA1_Ch6_init(&USART2->DR, can_msg_tx.msg.data);
 
+    can_msg_tx.stid = CAN_ID_0;
+    can_msg_tx.exid = 0;
+    can_msg_tx.ide = 0;
+    can_msg_tx.rtr = 0;
+
     while(1)
     {
         if (can_msg_tx.msg.cnt != 0)
@@ -110,9 +115,11 @@ void Task_UART_to_CAN(void *pvParameters)
         }
         else
         {
-            DMA1_Channel6->CCR |= DMA_CCR_EN;
+            if (!(DMA1_Channel6->CCR & DMA_CCR_EN))
+                DMA1_Channel6->CCR |= DMA_CCR_EN;
             xSemaphoreTake(UART1_semphr, portMAX_DELAY);
             can_msg_tx.msg.cnt = DATA_BUF_SIZE - DMA1_Channel6->CNDTR;
+            DMA1_Channel6->CNDTR = DATA_BUF_SIZE;
         }
     }
 }
