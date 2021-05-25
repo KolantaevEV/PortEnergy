@@ -111,7 +111,6 @@ void CAN_rx_data(CAN_TypeDef *CANx, volatile can_msg_t *can_msg)
     can_msg->ide = ((CAN1->sFIFOMailBox[0].RIR & CAN_RI0R_IDE_Msk) >> CAN_RI0R_IDE_Pos);
     can_msg->rtr = ((CAN1->sFIFOMailBox[0].RIR & CAN_RI0R_RTR_Msk) >> CAN_RI0R_RTR_Pos);
     can_msg->dlc = ((CAN1->sFIFOMailBox[0].RDTR & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos);
-    
 
     for (int i = 0; i < can_msg->dlc; i++)
     {

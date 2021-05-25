@@ -20,8 +20,7 @@ typedef struct
 
 void uart2Init(void);
 buff_t str2Char(float temp, float volt);
-volatile uint8_t *getUartRxBuffAdr(void);
-volatile buff_t *getDataFromUart(void);
+uint8_t *getUartRxBuffAdr(void);
 void resetBuffersServiceData(void);
 
 #endif  /*LIB_USART_LL*/
