@@ -3,6 +3,9 @@
 extern volatile xSemaphoreHandle CAN1_semphr;
 extern volatile xSemaphoreHandle DMA_Ch7_semphr;
 extern volatile xSemaphoreHandle UART1_semphr;
+extern volatile xQueueHandle queue_to_CAN;
+extern volatile circularBuff_t uartRxCircularBuff;
+extern volatile buff_t buffForCan;
 
 void IRQ_init(void)
 {
@@ -32,10 +35,9 @@ void DMA1_Channel7_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
     LL_USART_ClearFlag_IDLE(USART2);
+
+    //DMA1_Channel6->CCR &= ~DMA_CCR_EN;
     
-    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
-    xSemaphoreGiveFromISR(UART1_semphr, pdFALSE);
-/*
     int numOfData2BeTransfered = DMA1_Channel6->CNDTR;
     int numOfNewBytes = 0;
 
@@ -57,7 +59,11 @@ void USART2_IRQHandler(void)
     uartRxCircularBuff.beginIndx = ++uartBuffIndx;
 
     buffForCan.cnt = numOfNewBytes;
-*/
     
-    //setNewDataFlag();
+    setNewDataFlag();
+
+    xQueueSendFromISR(queue_to_CAN, getDataFromUart(), pdFALSE);
+    xSemaphoreGiveFromISR(UART1_semphr, pdFALSE);
+
+    //DMA1_Channel6->CCR |= DMA_CCR_EN;
 }

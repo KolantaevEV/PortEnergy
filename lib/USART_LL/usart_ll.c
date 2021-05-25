@@ -1,33 +1,25 @@
 #include "usart_ll.h"
-typedef struct
-{
-    char buff[DATA_BUF_SIZE];
-    int beginIndx;
-    int dmaRemainBytes;
-} circularBuff_t;
 
-static circularBuff_t uartRxCircularBuff = {{0}, 0, DATA_BUF_SIZE};
-static buff_t buffForCan = {{0}, 0};
+volatile circularBuff_t uartRxCircularBuff = {{0}, 0, DATA_BUF_SIZE};
+volatile buff_t buffForCan = {{0}, 0};
 
 uint8_t newDataFlag = 0;
 
-//static void setNewDataFlag(void);
-
-char *getUartRxBuffAdr(void)
+uint8_t *getUartRxBuffAdr(void)
 {
     return uartRxCircularBuff.buff;
 }
 
-buff_t getDataFromUart(void)
+buff_t *getDataFromUart(void)
 {
-    return buffForCan;
+    return &buffForCan;
 }
-/*
+
 void setNewDataFlag(void)
 {
     newDataFlag = 1;
 }
-*/
+
 uint8_t getNewDataFlag(void)
 {
     return newDataFlag;

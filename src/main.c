@@ -4,6 +4,7 @@ volatile xSemaphoreHandle CAN1_semphr;
 volatile xSemaphoreHandle DMA_Ch7_semphr;
 volatile xSemaphoreHandle UART1_semphr;
 volatile xQueueHandle queue_to_DMA;
+volatile xQueueHandle queue_to_CAN;
 volatile xTimerHandle th_ADC_convert;
 
 int main(void)
@@ -11,6 +12,7 @@ int main(void)
     RCC_init();
     GPIO_init();
     uart2Init();
+    DMA1_Ch6_init(&USART2->DR, getUartRxBuffAdr());
     ADC1_init();
     CAN1_init();
     IRQ_init();
@@ -25,6 +27,8 @@ int main(void)
     if (xTimerStart(th_ADC_convert, 0) != pdPASS) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
 //============Add_Queue============
     queue_to_DMA = xQueueCreate(5 , sizeof(buff_t));
+        if (queue_to_DMA == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
+    queue_to_CAN = xQueueCreate(5 , sizeof(buff_t));
         if (queue_to_DMA == NULL) {GPIOC->BSRR = GPIO_BSRR_BS13; while(1);}
 //============Add_Semaphores========
     DMA_Ch7_semphr = xSemaphoreCreateBinary();
@@ -65,7 +69,7 @@ int main(void)
 
     while (1)
     {
-        
+        GPIOC->BSRR = GPIO_BSRR_BS13; //Error led
     }
 
     return 0;
@@ -100,28 +104,18 @@ void Task_ADC_to_UART(void *pvParameters)
 
 void Task_UART_to_CAN(void *pvParameters)
 {
-    volatile can_msg_t can_msg_tx = {0};
-    DMA1_Ch6_init(&USART2->DR, can_msg_tx.msg.data);
-
-    can_msg_tx.stid = CAN_ID_0;
-    can_msg_tx.exid = 0;
-    can_msg_tx.ide = 0;
-    can_msg_tx.rtr = 0;
+    can_msg_t can_msg = {0};    
+    can_msg.stid = CAN_ID_0;
+    can_msg.exid = 0;
+    can_msg.ide = 0;
+    can_msg.rtr = 0;
 
     while(1)
     {
-        if (can_msg_tx.msg.cnt != 0)
-        {
-            CAN_tx_data(CAN1, &can_msg_tx);
-        }
+        if (can_msg.msg.cnt)
+            CAN_tx_data(CAN1, &can_msg);
         else
-        {
-            if (!(DMA1_Channel6->CCR & DMA_CCR_EN))
-                DMA1_Channel6->CCR |= DMA_CCR_EN;
-            xSemaphoreTake(UART1_semphr, portMAX_DELAY);
-            can_msg_tx.msg.cnt = DATA_BUF_SIZE - DMA1_Channel6->CNDTR;
-            DMA1_Channel6->CNDTR = DATA_BUF_SIZE;
-        }
+            xQueueReceive(queue_to_CAN, &can_msg.msg, portMAX_DELAY);
     }
 }
 
