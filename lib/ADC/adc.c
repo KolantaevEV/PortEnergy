@@ -17,7 +17,7 @@ void ADC1_init(void)
     ADC1->CR2 |= ADC_CR2_DMA;  //DMA enable
 
 /*===============ADC1_Ch_config===================*/
-    ADC1_Ch8_init();    //Voltage input
+    ADC1_Ch0_init();    //Voltage input
     ADC1_Ch16_init();   //Temp internal input
 
 /*===============ADC1_calibration===================*/
@@ -31,19 +31,19 @@ void ADC1_init(void)
 //    ADC1->CR2 |= ADC_CR2_SWSTART;   //Start ADC1
 }
 
-void ADC1_Ch8_init(void)
+void ADC1_Ch0_init(void)
 {
-    if (!(RCC->APB2ENR & RCC_APB2ENR_IOPBEN))
-        RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+    if (!(RCC->APB2ENR & RCC_APB2ENR_IOPAEN))
+        RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
 
-/*===============ADC1_Ch8_GPIO_PB0===================*/
-    GPIOB->CRL &= ~GPIO_CRL_CNF0;   //Analog
-    GPIOB->CRL &= ~GPIO_CRL_MODE0;  //Input
+/*===============ADC1_Ch0_GPIO_PA0===================*/
+    GPIOA->CRL &= ~GPIO_CRL_CNF0;   //Analog
+    GPIOA->CRL &= ~GPIO_CRL_MODE0;  //Input
 
-/*===============ADC1_Ch8_config===================*/
-    ADC1->SMPR2 |= ADC_SMPR2_SMP8_0 | ADC_SMPR2_SMP8_1; //Sample time
+/*===============ADC1_Ch0_config===================*/
+    ADC1->SMPR2 |= ADC_SMPR2_SMP0_0 | ADC_SMPR2_SMP0_1; //Sample time
     //ADC1->JSQR |= ADC_JSQR_JSQ; //Set inject channel
-    ADC1->SQR1 |= ADC_SQR3_SQ1_3; //Set regular channel
+    ADC1->SQR3 &= ~ADC_SQR3_SQ1; //Set regular channel
 }
 
 void ADC1_Ch16_init(void)
@@ -51,6 +51,6 @@ void ADC1_Ch16_init(void)
 /*===============ADC1_Ch16_config===================*/
     ADC1->SMPR1 |= ADC_SMPR1_SMP16; //Sample time
     //ADC1->JSQR |= ADC_JSQR_JSQ; //Set inject channel
-    ADC1->SQR1 |= ADC_SQR3_SQ2_4;   //Set regular channel
+    ADC1->SQR3 |= ADC_SQR3_SQ2_4;   //Set regular channel
     ADC1->CR2 |= ADC_CR2_TSVREFE;  //Enable internal temp sensor
 }
