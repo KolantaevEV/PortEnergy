@@ -26,7 +26,7 @@ typedef struct
 {
     uint8_t data[DATA_BUF_SIZE];
     int16_t cnt;
-} buff;
+} buff_t;
 
 typedef struct 
 {
@@ -35,13 +35,13 @@ typedef struct
     uint32_t ide;
     uint32_t rtr;
     uint32_t dlc;
-    buff msg;
-} message;
+    buff_t msg;
+} can_msg_t;
 
 typedef struct 
 {
     uint16_t voltage_ch14;
     uint16_t temp_ch16;
-} adc_data;
+} adc_data_t;
 
 #endif  /*INC_TYPEDEFS*/

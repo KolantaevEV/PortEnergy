@@ -1,6 +1,4 @@
 #include "usart_ll.h"
-
-extern volatile xSemaphoreHandle UART1_semphr;
 typedef struct
 {
     char buff[DATA_BUF_SIZE];
@@ -9,7 +7,7 @@ typedef struct
 } circularBuff_t;
 
 static circularBuff_t uartRxCircularBuff = {{0}, 0, DATA_BUF_SIZE};
-static buff buffForCan = {{0}, 0};
+static buff_t buffForCan = {{0}, 0};
 
 uint8_t newDataFlag = 0;
 
@@ -20,7 +18,7 @@ char *getUartRxBuffAdr(void)
     return uartRxCircularBuff.buff;
 }
 
-buff getDataFromUart(void)
+buff_t getDataFromUart(void)
 {
     return buffForCan;
 }
@@ -85,9 +83,9 @@ void uart2Init(void)
     LL_USART_Enable(USART2);
 }
 
-buff str2Char(float temp, float volt)
+buff_t str2Char(float temp, float volt)
 {
-    static buff strData2Tx = {{"Temperatura: xx C | Voltage: y.yy V\x0D\x0A"}, 37};
+    static buff_t strData2Tx = {{"Temperatura: xx C | Voltage: y.yy V\x0D\x0A"}, 37};
 
     strData2Tx.data[13] = ((int)temp / 10) + '0';
     strData2Tx.data[14] = ((int)temp % 10) + '0';
@@ -100,38 +98,3 @@ buff str2Char(float temp, float volt)
     return strData2Tx;
 }
 
-void USART2_IRQHandler(void)
-{
-    LL_USART_ClearFlag_IDLE(USART2);
-    if (GPIOC->ODR & GPIO_ODR_ODR13)
-        GPIOC->BSRR = GPIO_BSRR_BR13;
-    else GPIOC->BSRR = GPIO_BSRR_BS13;
-
-    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
-    xSemaphoreGive(UART1_semphr);
-/*
-    int numOfData2BeTransfered = DMA1_Channel6->CNDTR;
-    int numOfNewBytes = 0;
-
-    if (numOfData2BeTransfered < uartRxCircularBuff.dmaRemainBytes)
-    {
-        numOfNewBytes = DATA_BUF_SIZE - numOfData2BeTransfered;
-    } else {
-        numOfNewBytes = (DATA_BUF_SIZE - uartRxCircularBuff.beginIndx) +  (DATA_BUF_SIZE - numOfData2BeTransfered);
-    }
-    uartRxCircularBuff.dmaRemainBytes = numOfData2BeTransfered;
-
-    int uartBuffIndx = 0;
-    for (int indx = 0; indx < numOfNewBytes; indx++)
-    {
-        uartBuffIndx = indx + uartRxCircularBuff.beginIndx;
-        if (uartBuffIndx > (DATA_BUF_SIZE - 1)) uartBuffIndx -= DATA_BUF_SIZE;
-        buffForCan.data[indx] = uartRxCircularBuff.buff[uartBuffIndx];
-    }
-    uartRxCircularBuff.beginIndx = ++uartBuffIndx;
-
-    buffForCan.cnt = numOfNewBytes;
-*/
-    
-    //setNewDataFlag();
-}

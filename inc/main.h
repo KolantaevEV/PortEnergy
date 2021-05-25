@@ -32,5 +32,6 @@ void Task_ADC_to_UART(void *pvParameters);
 void Task_UART_to_CAN(void *pvParameters);
 void Task_CAN_to_UART(void *pvParameters);
 void tc_ADC_convert(xTimerHandle pxTimer);
+void Task_DMA_to_UART(void *pvParameters);
 
 #endif  /*INC_MAIN*/

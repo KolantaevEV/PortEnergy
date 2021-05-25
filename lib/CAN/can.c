@@ -52,7 +52,7 @@ void CAN1_init(void)
         while(CAN1->MSR & CAN_MSR_INAK); //Check init mode
 }
     
-void CAN_tx_data(CAN_TypeDef *CANx, volatile message *can_msg)
+void CAN_tx_data(CAN_TypeDef *CANx, volatile can_msg_t *can_msg)
 {
     static uint16_t index = 0;  //saves current index in data array
 
@@ -104,7 +104,7 @@ void CAN_tx_data(CAN_TypeDef *CANx, volatile message *can_msg)
     }
 }
 
-void CAN_rx_data(CAN_TypeDef *CANx, volatile message *can_msg)
+void CAN_rx_data(CAN_TypeDef *CANx, volatile can_msg_t *can_msg)
 {
     can_msg->stid = ((CAN1->sFIFOMailBox[0].RIR & CAN_RI0R_STID_Msk) >> CAN_RI0R_STID_Pos);
     can_msg->exid = ((CAN1->sFIFOMailBox[0].RIR & CAN_RI0R_EXID_Msk) >> CAN_RI0R_EXID_Pos);

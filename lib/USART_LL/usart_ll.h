@@ -11,9 +11,9 @@
 #include "typedefs.h"
 
 void uart2Init(void);
-buff str2Char(float temp, float volt);
+buff_t str2Char(float temp, float volt);
 char *getUartRxBuffAdr(void);
-buff getDataFromUart(void);
+buff_t getDataFromUart(void);
 uint8_t getNewDataFlag(void);
 void clearNewDataFlag(void);
 void resetBuffersServiceData(void);
